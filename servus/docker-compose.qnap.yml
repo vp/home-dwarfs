@@ -1,0 +1,48 @@
+version: '2'
+
+networks:
+  snapcast_nw:
+
+volumes:
+  snapcast:
+
+services:
+  snapserver:
+    ports:
+      - "1704:1704"
+      - "1705:1705"
+    restart: always
+    image: vproke/rpi-snapserver:latest
+    networks:
+      - snapcast_nw
+    volumes:
+      - snapcast:/tmp
+
+  mopidy:
+    image: vproke/rpi-mopidy:latest
+    ports:
+      - "6600:6600"
+      - "6680:6680"
+    volumes:
+      - "/share/Multimedia:/media/music"
+    restart: always
+    volumes:
+      - snapcast:/tmp
+    environment:
+      - SPOTIFY_USERNAME
+      - SPOTIFY_PASSWORD
+      - LASTFM_USERNAME
+      - LASTFM_PASSWORD
+    entrypoint:
+      - "/usr/local/bin/mopidy.sh"
+      - "--snapcast"
+
+  home-assistant:
+    image: lroguet/rpi-home-assistant:latest
+    network_mode: host
+    ports:
+      - "8123:8123"
+    volumes:
+      - /share/Container/homeassistant/config:/config
+      - /etc/localtime:/etc/localtime
+    restart: always

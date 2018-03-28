@@ -1,0 +1,55 @@
+version: '2'
+
+services:
+  snapserver:
+    build: ../dockerfiles/snapserver
+    ports:
+      - "1704:1704"
+      - "1705:1705"
+    restart: always
+
+  snapclient:
+    image: vproke/rpi-snapclient:latest
+    build: ../dockerfiles/snapclient
+    networks:
+      - snapcast_nw
+    devices:
+      - /dev/snd
+    restart: always
+
+  mopidy:
+    build: ../mopidy
+    ports:
+      - "6600:6600"
+      - "6680:6680"
+    volumes:
+      - "/mnt/media/music:/media/music"
+      - "/home/pi/ho/dockerfiles/mopidy/mopidy.conf:/root/.config/mopidy/mopidy.conf"
+    restart: always
+
+  home-assistant:
+    ports:
+      - "8123:8123"
+    volumes:
+      - /home/pi/homeassistant/config:/config
+      - /etc/localtime:/etc/localtime
+    restart: always
+    devices:
+      - "/dev/i2c-1:/dev/i2c-1"
+
+ # hass-configurator:
+ #   ports:
+ #     - "3218:3218/tcp"
+ #   volumes:
+ #     - /home/pi/homeassistant:/config
+ #     - /home/pi/appdata/hass-configurator:/hass-config
+ #   restart: always
+
+  portainer:
+    image: portainer/portainer
+    ports:
+      - "2121:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/pi/appdata/portainer:/data
+    restart: always
