@@ -1,0 +1,81 @@
+#!/bin/bash
+
+: <<'DISCLAIMER'
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+OTHER DEALINGS IN THE SOFTWARE.
+
+This script is licensed under the terms of the MIT license.
+Unless otherwise noted, code reproduced herein
+was written for this script.
+
+DISCLAIMER
+
+
+gitreponame="seeed-voicecard" # the name of the git project repo
+gitusername="respeaker" # the name of the git user to fetch repo from
+gitrepobranch="install" # repo branch to checkout
+gitrepotop="root" # the name of the dir to base repo from
+gitrepoclone="yes" # whether the git repo is to be cloned locally
+gitclonedir="source" # the name of the local dir for repo
+topdir="seeed" # the name of the top level directory
+repoclean="no" # whether any git repo clone found should be cleaned up
+repoinstall="yes" # whether the library should be installed from repo
+
+if [ $EUID -ne 0 ]; then
+     USER_HOME=$(getent passwd $USER | cut -d: -f6)
+else
+    warning "Running as root, please log in as a regular user with sudo rights!"
+    echo && exit 1
+fi
+
+installdir="$USER_HOME/$topdir"
+
+echo "USER_HOME is $USER_HOME"
+echo "installdir is $installdir"
+
+newline() {
+    echo ""
+}
+
+
+
+if [ $gitrepoclone == "yes" ]; then
+    [ -d $installdir ] || mkdir -p $installdir
+fi
+
+
+if [ $gitrepoclone == "yes" ]; then
+    if ! command -v git > /dev/null; then
+        apt_pkg_install git
+    fi
+    if [ $gitclonedir == "source" ]; then
+        gitclonedir=$gitreponame
+    fi
+    if [ $repoclean == "yes" ]; then
+        rm -Rf $installdir/$gitclonedir
+    fi
+    if [ -d $installdir/$gitclonedir ]; then
+        newline && echo "Github repo already present. Updating..."
+        cd $installdir/$gitclonedir && git pull
+    else
+        newline && echo "Cloning Github repo locally..."
+        cd $installdir
+        if [ $gitrepobranch != "master" ]; then
+            git clone https://github.com/$gitusername/$gitreponame $gitclonedir -b $gitrepobranch
+        else
+            git clone --depth=1 https://github.com/$gitusername/$gitreponame $gitclonedir
+        fi
+    fi
+fi
+
+newline && echo "Installing..." && newline
+cd $installdir/$gitreponame
+sudo ./install.sh
+newline
