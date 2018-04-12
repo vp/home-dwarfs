@@ -14,9 +14,7 @@ RUN wget http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key && \
 RUN mkdir -p /mosquitto/config /mosquitto/data /mosquitto/log && \
 	cp /etc/mosquitto/mosquitto.conf /mosquitto.config && \
     chown -R mosquitto:mosquitto /mosquitto
-
-COPY config/mosquitto.conf /mosquitto/config
-
+    
 COPY docker-entrypoint.sh /
 
 RUN chown mosquitto:mosquitto /docker-entrypoint.sh && \
