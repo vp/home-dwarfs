@@ -1,33 +1,52 @@
-# docker-mosquitto
+#Eclipse Mosquitto Docker Image for ARMv7 32-bit or arm32v7 platform.
 
-Porting official Eclipse mosquitto package to Docker image running on Raspberri Pi 2/3 (ARMv7 32-bit or arm32v7) platform.
+##Mount Points
 
-## Directories
-Three directories have been created in the image to be used for configuration, persistence storage and log.
-- /mosquitto/config
-- /mosquitto/data
-- /mosquitto/log
+Three mount points have been created in the image to be used for configuration, persistent storage and logs.
+```
+/mosquitto/config
+/mosquitto/data
+/mosquitto/log
+```
 
-## Usage
-### Alternative 1:
-Run Docker with minimal options by using default configuration supplied by Docker image.<br>
-`$ docker run -d -e TZ=<timezone> -p 1883:1883 mbixtech/arm32v7-mosquitto`
 
-For example, TZ=Asia/Bangkok
+##Configuration
 
-### Alternative 2:
-Use a custom configuration file by mounting to local /mosquitto/config/mosquitto.conf file.<br>
-`$ docker run -d -e TZ=<timezone> -p 1883:1883 -v mosquitto.conf:/mosquitto/config/mosquitto.conf mbixtech/arm32v7-mosquitto`
+When running the image, the default configuration values are used. 
+To use a custom configuration file, mount a **local** configuration file to `/mosquitto/config/mosquitto.conf`
+```
+docker run -it -p 1883:1883 -p 9001:9001 -v <path-to-configuration-file>:/mosquitto/config/mosquitto.conf vproke/rpi-mosqitto
+```
 
-In /mosquitto.conf configuration file, it can be put the following parameters pointing specific directories.
+Configuration can be changed to:
 
+* persist data to `/mosquitto/data` 
+* log to `/mosquitto/log/mosquitto.log`
+
+i.e. add the following to `mosquitto.conf`:
+```
 persistence true
 persistence_location /mosquitto/data/
-log_dest file /mosquitto/log/mosquitto.log
 
-### Alternative 3:
-Map local directories to all specific directories of Docker container.<br>
-`$ docker run -d -e TZ=<timezone> -p 1883:1883 -v config:/mosquitto/config -v data:/mosquitto/data -v log:/mosquitto/log mbixtech/arm32v7-mosquitto`
+log_dest file /mosquitto/log/mosquitto.log
+```
+
+**Note**: If a volume is used, the data will persist between containers.
+
+##Build
+Build the image:
+```
+docker build -t vproke/rpi-mosqitto .
+```
+
+##Run
+Run a container using the new image:
+```
+docker run -it -p 1883:1883 -p 9001:9001 -v <path-to-configuration-file>:/mosquitto/config/mosquitto.conf -v /mosquitto/data -v /mosquitto/log vproke/rpi-mosqitto
+```
+:boom: if the mosquitto configuration (mosquitto.conf) was modified
+to use non-default ports, the docker run command will need to be updated
+to expose the ports that have been configured.
 
 ## Credits
 Build Dockerfile base on original from https://github.com/eclipse/mosquitto/tree/master/docker git repository.

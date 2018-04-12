@@ -12,6 +12,7 @@ RUN wget http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key && \
     apt-get -y install mosquitto
 
 RUN mkdir -p /mosquitto/config /mosquitto/data /mosquitto/log && \
+	cp /etc/mosquitto/mosquitto.conf /mosquitto.config && \
     chown -R mosquitto:mosquitto /mosquitto
 
 COPY config/mosquitto.conf /mosquitto/config
