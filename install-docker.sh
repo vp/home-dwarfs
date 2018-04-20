@@ -1,3 +1,3 @@
 #!/bin/sh
 curl -fsSL get.docker.com -o get-docker.sh
-sh get-docker.s
+sh get-docker.sh
