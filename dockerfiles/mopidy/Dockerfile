@@ -7,17 +7,16 @@
 
 FROM resin/rpi-raspbian:stretch
 RUN apt-get update \
- && apt-get install -y wget
+ && apt-get install -y wget \
  && wget -q -O - https://apt.mopidy.com/mopidy.gpg | apt-key add - \
  && wget -q -O /etc/apt/sources.list.d/mopidy.list https://apt.mopidy.com/stretch.list \
  && apt-get update \
  && apt-get install -y \
     mopidy \
-    mopidy-spotify \
     mopidy-tunein \
-    mopidy-scrobbler
     python-pip \
-python-setuptools \
+    python-setuptools \
+    python-wheel \
  && pip install \
     Mopidy-Moped \
     Mopidy-YouTube \
